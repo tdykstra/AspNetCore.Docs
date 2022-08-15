@@ -29,7 +29,7 @@ The [`IParsable<TSelf>.TryParse`](/dotnet/api/system.iparsable-1.tryparse#system
 
 ### Parameter binding with DI in API controllers
 
-Parameter binding for API controller actions binds parameters through [dependency injection](xref:fundamentals/dependency-injection) when the type is configured as a service. This means it’s no longer required to explicitly apply the [`[FromServices]`](xref:Microsoft.AspNetCore.Mvc.FromServicesAttribute) attribute to a parameter. In the following code, both actions return the time:
+Parameter binding for API controller actions binds parameters through [dependency injection](xref:fundamentals/dependency-injection) when the type is configured as a service. This means it's no longer required to explicitly apply the [`[FromServices]`](xref:Microsoft.AspNetCore.Mvc.FromServicesAttribute) attribute to a parameter. In the following code, both actions return the time:
 
 [!code-csharp[](~/release-notes/aspnetcore-7/samples/ApiController/Controllers/MyController.cs?name=snippet)]
 
@@ -109,7 +109,7 @@ The following code shows the complete `Program.cs` file:
 Limitations when binding request body to `Stream` or `PipeReader`:
 
 * When reading data, the `Stream` is the same object as `HttpRequest.Body`.
-* The request body isn’t buffered by default. After the body is read, it’s not rewindable. The stream can't be read multiple times.
+* The request body isn't buffered by default. After the body is read, it's not rewindable. The stream can't be read multiple times.
 * The `Stream` and `PipeReader` aren't usable outside of the minimal action handler as the underlying buffers will be disposed or reused.
 
 ### New Results.Stream overloads
@@ -122,7 +122,7 @@ For more information, see [Stream examples](xref:fundamentals/minimal-apis?view=
 
 ### Typed results for minimal APIs
 
-In .NET 6, the <xref:Microsoft.AspNetCore.Http.IResult> interface was introduced to represent values returned from minimal APIs that don’t utilize the implicit support for JSON serializing the returned object to the HTTP response. The static [Results](/dotnet/api/microsoft.aspnetcore.http.results) class is used to create varying `IResult` objects that represent different types of responses. For example, setting the response status code or redirecting to another URL. The `IResult` implementing framework types returned from these methods were internal however, making it difficult to verify the specific `IResult` type being returned from methods in a unit test.
+In .NET 6, the <xref:Microsoft.AspNetCore.Http.IResult> interface was introduced to represent values returned from minimal APIs that don't utilize the implicit support for JSON serializing the returned object to the HTTP response. The static [Results](/dotnet/api/microsoft.aspnetcore.http.results) class is used to create varying `IResult` objects that represent different types of responses. For example, setting the response status code or redirecting to another URL. The `IResult` implementing framework types returned from these methods were internal however, making it difficult to verify the specific `IResult` type being returned from methods in a unit test.
 
 In .NET 7 the types implementing `IResult` are public, allowing for type assertions when testing. For example:
 
@@ -209,7 +209,7 @@ For more information, see [Shadow copying in IIS](xref:host-and-deploy/iis/advan
 
 The console output from dotnet watch has been improved to better align with the logging of ASP.NET Core and to stand out with 😮emojis😍.
 
-Here’s an example of what the new output looks like:
+Here's an example of what the new output looks like:
 
 ![output for dotnet watch](~/release-notes/aspnetcore-7/static/dnwatch.png)
 
@@ -217,7 +217,7 @@ See [this GitHub pull request](https://github.com/dotnet/sdk/pull/23318) for mor
 
 ### Configure dotnet watch to always restart for rude edits
 
-Rude edits are edits that  can’t be hot reloaded. To configure dotnet watch to always restart without a prompt for rude edits, set the `DOTNET_WATCH_RESTART_ON_RUDE_EDIT` environment variable to `true`.
+Rude edits are edits that  can't be hot reloaded. To configure dotnet watch to always restart without a prompt for rude edits, set the `DOTNET_WATCH_RESTART_ON_RUDE_EDIT` environment variable to `true`.
 
 ### Developer exception page dark mode
 
