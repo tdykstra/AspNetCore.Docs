@@ -5,7 +5,7 @@ description: Learn about using HTTP/2 with Kestrel, the cross-platform web serve
 monikerRange: '>= aspnetcore-5.0'
 ms.author: riande
 ms.custom: mvc
-ms.date: 08/15/2022
+ms.date: 08/17/2022
 uid: fundamentals/servers/kestrel/http2
 ---
 
@@ -72,5 +72,18 @@ Additional HTTP/2 features in Kestrel support gRPC, including support for respon
 ### Reset
 
 [!INCLUDE[](~/includes/reset.md)]
+
+## Websockets
+
+[WebSockets](https://www.rfc-editor.org/rfc/rfc6455.html) were originally designed for HTTP/1.1 but have been [adapted to work over HTTP/2](https://www.rfc-editor.org/rfc/rfc8441.html). Using WebSockets over HTTP/2 lets you take advantage of new features like header compression and multiplexing that reduce the time and resources needed when making multiple requests to the server. That support is now available in Kestrel on all HTTP/2-enabled platforms.
+
+The HTTP version negotiation is automatic in browsers and Kestrel. ASP.NET Core documentation and samples written for WebSockets over HTP/1.1 apply to HTTP/2 with the following exceptions:
+
+* HTTP/2 WebSockets use CONNECT rather than GET requests, so routes and controllers may need updating.
+* On FireFox you have to enable WebSockets on the `about:config` page with the `network.http.spdy.websockets` flag.Chrome and Edge have HTTP/2 WebSockets enabled by default.
+
+SignalR and the SignalR browser JavaScript client have been updated to support WebSockets over HTTP/2.
+
+For more information, see [WebSockets support in ASP.NET Core](xref:fundamentals/websockets).
 
 :::moniker-end
