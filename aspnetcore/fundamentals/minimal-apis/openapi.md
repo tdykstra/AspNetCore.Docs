@@ -4,7 +4,7 @@ author: rick-anderson
 description: Learn how to use OpenApi (Swagger and Swashbuckle) features of minimal APIs in ASP.NET Core.
 ms.author: riande
 monikerRange: '>= aspnetcore-6.0'
-ms.date: 08/23/2022
+ms.date: 09/29/2022
 uid: fundamentals/minimal-apis/openapi
 ---
 
@@ -67,7 +67,7 @@ In the preceding highlighted code:
 
 <a name="openapinuget"></a>
 
-### `Microsoft.AspNetCore.OpenApi` NuGet package
+## `Microsoft.AspNetCore.OpenApi` NuGet package
 
 ASP.NET Core provides the [`Microsoft.AspNetCore.OpenApi`](https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi/) package to interact with OpenAPI specifications for endpoints. The package acts as a link between the OpenAPI models that are defined in the `Microsoft.AspNetCore.OpenApi` package and the endpoints that are defined in Minimal APIs. The package provides an API that examines an endpoint's parameters, responses, and metadata to construct an OpenAPI annotation type that is used to describe an endpoint.
 
@@ -77,7 +77,7 @@ ASP.NET Core provides the [`Microsoft.AspNetCore.OpenApi`](https://www.nuget.org
 
 When using [`Swashbuckle.AspNetCore`](https://www.nuget.org/packages/Swashbuckle.AspNetCore/) with `Microsoft.AspNetCore.OpenApi`, `Swashbuckle.AspNetCore` 6.3.1 and later must be used. Version 6.4.0 or later is required if you want to [provide endpoint summary or description text](#add-endpoint-summary-or-description).
 
-### `WithOpenApi` call on endpoints adds an OpenAPI annotation
+## `WithOpenApi` call on endpoints adds an OpenAPI annotation
 
 Calling [`WithOpenApi`](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c04134f22f8d39aae21d212282004f/src/OpenApi/src/OpenApiRouteHandlerBuilderExtensions.cs) on an endpoint without parameters adds an [OpenAPI annotation](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c04134f22f8d39aae21d212282004f/src/OpenApi/src/OpenApiRouteHandlerBuilderExtensions.cs#L65-L82) to the endpoints metadata. This metadata can be:
 
@@ -86,35 +86,199 @@ Calling [`WithOpenApi`](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c041
 
 [!code-csharp[](7.0-samples/todo/Program.cs?name=snippet_withopenapi&highlight=9)]
 
-#### Call `WithOpenApi` with parameters
+### Call `WithOpenApi` with parameters
 
 The [`WithOpenApi`](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c04134f22f8d39aae21d212282004f/src/OpenApi/src/OpenApiRouteHandlerBuilderExtensions.cs#L49) method accepts a function that can be used to modify the OpenAPI annotation. For example, in the following code, a description is added to the first parameter of the endpoint:
 
 [!code-csharp[](7.0-samples/todo/Program.cs?name=snippet_withopenapi2&highlight=9-99)]
 
-### Exclude Open API description
+## Describe response types
 
-In the following sample, the `/skipme` endpoint is excluded from generating an OpenAPI description:
+Response types can be described to OpenAPI in the following ways:
 
-[!code-csharp[](7.0-samples/WebMinAPIs/Program.cs?name=snippet_swag2&highlight=20-21)]
+* If the endpoint returns only one type:
+  * By calling Produces once
+  * By returning a type defined by TypedResults.
+* If the endpoint returns different types in different scenarios
+  * By calling Produces. multiple times
+  * By returning \<TResult1, TResultN>
 
-### Describe response types
-
-The following example uses the built-in result types to customize the response:
+ <xref:Microsoft.AspNetCore.Http.OpenApiRouteHandlerBuilderExtensions.Produces%60%601(Microsoft.AspNetCore.Builder.RouteHandlerBuilder,System.Int32,System.String,System.String[])> and <xref:Microsoft.AspNetCore.Http.OpenApiRouteHandlerBuilderExtensions.Produces(Microsoft.AspNetCore.Builder.RouteHandlerBuilder,System.Int32,System.Type,System.String,System.String[])> method uses the built-in result types to customize the response:
 
 [!code-csharp[](samples/todo/Program.cs?name=snippet_getCustom)]
 
-### Add operation IDs to Open API
+### Self-describing minimal APIs with `IEndpointMetadataProvider` and `IEndpointParameterMetadataProvider`
+
+Minimal APIs can use the type information declared in route handlers to automatically document the result type produced by an endpoint.details of the APIs for OpenAPI/Swagger. In cases where those details are not enough to describe an API, you can add endpoint metadata in code to enhance the description:
+
+```csharp
+app.MapGet("/todos", async (TodoDb db)
+{
+    return Results.Ok(await db.Todos.ToArrayAsync());
+})
+    // Add metadata about the shape of the data returned for OpenAPI/Swagger
+    .Produces<Todo[]>();
+```
+
+Wouldn't it be nice if we could preserve the rich type information and use it to more fully describe our APIs automatically, without additional annotations? For example, if my route handler declares that it returns a type that represents an HTTP 200 OK response with a particularly shaped JSON payload, we should be able to use that type information to automatically describe the API.
+
+In .NET 7, we've introduced two new interfaces to ASP.NET Core that allow types used in minimal API route handlers to contribute to endpoint metadata: `IEndpointMetadataProvider` and `IEndpointParameterMetadataProvider`. These interfaces take advantage of a feature, newly out of preview in C# 11, [`static abstract` interface members](https://docs.microsoft.com/dotnet/csharp/whats-new/tutorials/static-abstract-interface-methods), to declare static methods that, if present on route handler return types or parameters, will be called by the framework when the endpoint is built.
+
+The interfaces look like this:
+
+```csharp
+namespace Microsoft.AspNetCore.Http.Metadata;
+
+public interface IEndpointMetadataProvider
+{
+    static abstract void PopulateMetadata(EndpointMetadataContext context);
+}
+
+public interface IEndpointParameterMetadataProvider
+{
+    static abstract void PopulateMetadata(EndpointParameterMetadataContext parameterContext);
+}
+```
+
+`IEndpointMetadataProvider` can be implemented by types either returned from a route handler, or accepted by a route handler as a parameter. `IEndpointParameterMetadataProvider`, as the name suggests, can only be implemented by types accepted by a route handler as a parameter and will be provided with the `ParameterInfo` for the associated route handler parameter when called.
+
+Updating the example above to use the new `TypedResults` class is all that's needed to have it be able to describe itself to OpenAPI/Swagger, as many of the in-framework `IResult`-implementing types also implement `IEndpointMetadataProvider`:
+
+```csharp
+app.MapGet("/todos", async (TodoDb db)
+{
+    // This lambda now returns Ok<Todo[]>, a type that implements IEndpointMetadataProvider.
+    // The framework will call Ok<Todo[]>.PopulateMetadata() when the endpoint is built,
+    // which adds the necessary endpoint metadata to describe the HTTP response type.
+    return TypedResults.Ok(await db.Todos.ToArrayAsync());
+});
+```
+
+This pattern works well for simple route handlers that return only one type of result, but what happens once we have an API that can return different result types depending on the conditions, like a **200 OK** when the todo is found and a **404 Not Found** when it isn't? You can, of course, continue to return `IResult` from a route handler that returns different actual types (as long as they all implement `IResult`) by explicitly stating the handler's return type, like this:
+
+```csharp
+// Declare that the lambda returns IResult so that multiple concrete types can be returned
+app.MapGet("/todos/{id}", async IResult (int id, TodoDb db)
+    {
+        return await db.Todos.FindAsync(id) is Todo todo
+            ? TypedResults.Ok(todo)
+            : TypedResults.NotFound();
+    });
+```
+
+But now the concrete type information is no longer preserved on the handler signature, and thus the framework cannot use it to automatically describe the API. C# does not yet support declaring multiple return types from a single method, so how do we preserve the full type information? We'll cover that next.
+
+## Return multiple result types from minimal APIs
+
+The new `Results<TResult1, TResult2, TResultN>` generic union types, along with the `TypesResults` class, can be used to declare that a route handler returns multiple `IResult`-implementing concrete types, and any of those types implementing `IEndpointMetadataProvider` will contribute to the endpoint's metadata, enabling the framework to automatically describe the various HTTP results for an API in OpenAPI/Swagger:
+
+```csharp
+// Declare that the lambda returns multiple IResult types
+app.MapGet("/todos/{id}", async Results<Ok<Todo>, NotFound> (int id, TodoDb db)
+{
+    return await db.Todos.FindAsync(id) is Todo todo
+        ? TypedResults.Ok(todo)
+        : TypedResults.NotFound();
+});
+```
+
+The `Results<TResult1, TResultN>` union types implement implicit cast operators so that the compiler can automatically convert the types specified in the generic arguments to an instance of the union type. This has the added benefit of providing compile-time checking that a route handler actually only returns the results that it declares it does. Attempting to return a type that isn't declared as one of the generic arguments to `Results<>` will result in a compilation error.
+
+Below is an image of the Swagger UI for the API in the example above. You can see that the parameter and responses information has been automatically discovered from the route handler signature:
+
+![Automatically documented minimal API in SwaggerUI](gettodos_swaggerui.png)
+
+### A self-documenting Todos API
+
+Let's revisit our todos API from earlier. It's now updated to include methods for retrieving a single todo, creating a new todo, and editing an existing todo. It's also now using the new `Results<TResult1, TResultsN>` and `TypedResults` types to preserve the full type information in the route handler signatures, making them easier to verify in tests, and be automatically described in OpenAPI/Swagger:
+
+```csharp
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSqlite<TodoDb>("Filename=:memory:");
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.MapTodosApi();
+
+app.Run();
+
+public class Todo
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public bool IsComplete { get; set; }
+}
+
+public static class TodosApi
+{
+    public static IEndpointRouteBuilder MapTodosApi(this IEndpointRouteBuilder routes)
+    {
+        routes.MapGet("/todos", GetAllTodos);
+        routes.MapGet("/todos/{id}", GetTodo);
+        routes.MapPost("/todos", CreateTodo);
+        routes.MapPut("/todos/{id}", UpdateTodo);
+        return routes;
+    }
+    
+    public static async Task<Ok<Todo[]>> GetAllTodos(TodoDb db)
+    {
+        return TypedResults.Ok(await db.Todos.ToListAsync());
+    }
+
+    public static async Task<Results<Ok<Todo>, NotFound>> GetTodo(int id, TodoDb db)
+    {
+        return await db.Todos.FindAsync(id) is Todo todo
+            ? TypedResults.Ok(todo)
+            : TypedResults.NotFound();
+    }
+
+    public static async Task<Created<Todo>> CreateTodo(Todo todo, TodoDb db)
+    {
+        db.Todos.Add(todo);
+        await db.SaveChangesAsync();
+
+        return TypedResults.Created($"/todos/{todo.Id}", todo);
+    }
+
+    public static async Task<Results<NoContent, NotFound>> UpdateTodo(int id, Todo todo, TodoDb db)
+    {
+        var existingTodo = await db.Todos.FindAsync(id);
+
+        if (existingTodo is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        existingTodo.Title = todo.Title;
+        existingTodo.IsComplete = todo.IsComplete;
+
+        await db.SaveChangesAsync();
+
+        return TypedResults.NoContent();
+    }
+}
+```
+
+
+## Add operation IDs to Open API
 
 [!code-csharp[](samples/todo/Program.cs?name=snippet_name)]
 
-### Add tags to the Open API description
+## Add tags to the Open API description
 
 The following code uses an [OpenAPI grouping tag](https://swagger.io/docs/specification/grouping-operations-with-tags/):
 
 [!code-csharp[](samples/todo/Program.cs?name=snippet_grp)]
 
-### Add endpoint summary or description
+## Add endpoint summary or description
 
 The following highlighted code provides summary and description text for OpenAPI spec generation. You can call extension methods or use attributes:
 
@@ -124,13 +288,13 @@ The following highlighted code provides summary and description text for OpenAPI
 
 The preceding highlighted code is supported by [`Swashbuckle.AspNetCore`](https://www.nuget.org/packages/Swashbuckle.AspNetCore/) 6.4.0 and later.
 
-<!-- 
-# Differences between minimal APIs and APIs with controllers
+## Exclude Open API description
 
-Moved to uid: tutorials/min-web-api
--->
+In the following sample, the `/skipme` endpoint is excluded from generating an OpenAPI description:
 
-### ASP.NET Core OpenAPI source code on GitHub
+[!code-csharp[](7.0-samples/WebMinAPIs/Program.cs?name=snippet_swag2&highlight=20-21)]
+
+## ASP.NET Core OpenAPI source code on GitHub
 
 * [WithOpenApi](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c04134f22f8d39aae21d212282004f/src/OpenApi/src/OpenApiRouteHandlerBuilderExtensions.cs)
 * [OpenApiGenerator](https://github.com/dotnet/aspnetcore/blob/main/src/OpenApi/src/OpenApiGenerator.cs)
