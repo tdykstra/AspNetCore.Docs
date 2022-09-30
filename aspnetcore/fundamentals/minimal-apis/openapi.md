@@ -94,31 +94,30 @@ The [`WithOpenApi`](https://github.com/dotnet/aspnetcore/blob/8a4b4deb09c04134f2
 
 ## Describe response types
 
-Response types can be described for OpenAPI in two ways:
+Response types can be described for OpenAPI in the following ways:
 
 * By using a method or attribute that provides metadata
 * By using a route handler signature that enables the framework to infer metadata
 
-### Calling a method or using an attribute
+### Call a method or using an attribute
 
 The [`Produces`](xref:Microsoft.AspNetCore.Http.OpenApiRouteHandlerBuilderExtensions.Produces%2A> method provides metadata that describes an endpoint's result type. Call the method multiple times if there are different result types in different scenarios. For example:
 
 [!code-csharp[](samples/todo/Program.cs?name=snippet_getCustom)]
 
-*** Inferring metadata from the route handler signature
+*** Infer metadata from the route handler signature
 
 If the endpoint returns only one type, return a type defined by <xref:Microsoft.AspNetCore.Http.TypedResults>, as shown in the following example:
 
 :::code language="csharp" source="~/../AspNetCore.Docs.Samples/fundamentals/minimal-apis/samples/MultipleResultTypes/Program.cs" id="snippet_single_result_type":::
 
-If the endpoint returns different result types depending on the scenario, use [Results\<TResult1, Tesult2,TResultN>](xref:Microsoft.AspNetCore.Http.HttpResults.Results%606) in the signature, as shown in the following example:
+If the endpoint returns different result types depending on the scenario, use [Results\<TResult1, TResult2,TResultN>](xref:Microsoft.AspNetCore.Http.HttpResults.Results%606) in the signature, as shown in the following example:
 
 :::code language="csharp" source="~/../AspNetCore.Docs.Samples/fundamentals/minimal-apis/samples/MultipleResultTypes/Program.cs" id="snippet_multiple_result_types":::
 
-The `Results<TResult1, TResultN>` union types implement implicit cast operators. These operators enable the compiler to automatically convert the types specified in the generic arguments to an instance of the union type. This capability has the added benefit of providing compile-time checking that a route handler only returns the results that it declares it does. Attempting to return a type that isn't declared as one of the generic arguments to `Results<TResult1, TResultN>` will result in a compilation error.
+The `Results<TResult1, TResultN>` union types implement implicit cast operators. These operators enable the compiler to automatically convert the types specified in the generic arguments to an instance of the union type. This capability has the added benefit of providing compile-time checking that a route handler only returns the results that it declares it does. Attempting to return a type that isn't declared as one of the generic arguments to `Results<TResult1, TResultN>` results in a compilation error.
 
-Types that implement <xref:Microsoft.AspNetCore.Http.Metadata.IEndpointMetadataProvider> provide metadata for OpenApi. Many of the built-in types that implement `IResult` also implement `IEndpointMetadataProvider`, including most of the <xref:Microsoft.AspNetCore.Http.TypedResults> types.
-
+Only types that implement <xref:Microsoft.AspNetCore.Http.Metadata.IEndpointMetadataProvider> provide metadata for OpenApi. Some of the built-in types that implement `IResult` don't implement `IEndpointMetadataProvider`.
 
 ## Add operation IDs to Open API
 
