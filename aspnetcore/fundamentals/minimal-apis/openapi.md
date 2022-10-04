@@ -99,7 +99,7 @@ Response types can be described for OpenAPI in the following ways:
 * By using a method or attribute that provides metadata
 * By using a route handler signature that enables the framework to infer metadata
 
-### Call a method or using an attribute
+### Call a method or use an attribute
 
 The [`Produces`](xref:Microsoft.AspNetCore.Http.OpenApiRouteHandlerBuilderExtensions.Produces%2A> method provides metadata that describes an endpoint's result type. Call the method multiple times if there are different result types in different scenarios. For example:
 
@@ -117,7 +117,7 @@ If the endpoint returns different result types depending on the scenario, use [R
 
 The `Results<TResult1, TResultN>` union types implement implicit cast operators. These operators enable the compiler to automatically convert the types specified in the generic arguments to an instance of the union type. This capability has the added benefit of providing compile-time checking that a route handler only returns the results that it declares it does. Attempting to return a type that isn't declared as one of the generic arguments to `Results<TResult1, TResultN>` results in a compilation error.
 
-Only types that implement <xref:Microsoft.AspNetCore.Http.Metadata.IEndpointMetadataProvider> provide metadata for OpenApi. Some of the built-in types that implement `IResult` don't implement `IEndpointMetadataProvider`.
+Only types that implement <xref:Microsoft.AspNetCore.Http.Metadata.IEndpointMetadataProvider> provide metadata for OpenApi.
 
 ## Add operation IDs to Open API
 
