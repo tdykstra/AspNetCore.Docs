@@ -171,7 +171,7 @@ items:
                 uid: data/ef-mvc/inheritance
               - name: Advanced topics
                 uid: data/ef-mvc/advanced
-      - name: Learn modules
+      - name: Training modules
         items:
           - name: Web apps >>
             displayName: tutorial, razor, razor pages, ui
@@ -1583,6 +1583,16 @@ items:
       - name: Overview
         displayName: globalization, localization
         uid: fundamentals/localization
+      - name: Make an app's content localizable
+        displayName: globalization, localization
+        uid: fundamentals/localization/make-content-localizable
+      - name: Provide resources
+        displayName: globalization, localization
+        uid: fundamentals/localization/provide-resources
+      - name: Select language/culture
+        displayName: globalization, localization
+        uid: fundamentals/localization/select-language-culture
+
       - name: Portable Object localization
         uid: fundamentals/portable-object-localization
       - name: Extensibility
