@@ -131,7 +131,16 @@ The ASP.NET Core SPA templates can be updated in a patch release to a new SPA fr
 
 ## Additional resources
 
+* [Angular with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-angular)
+* [React with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-react)
+* [Vue with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-vue)
+* [JavaScript and TypeScript in Visual Studio](/visualstudio/javascript)
 * <xref:security/authentication/identity/spa>
+* [Hosting Startup Assemblies](xref:fundamentals/host/web-host#hosting-startup-assemblies)
+
+:::moniker range="< aspnetcore-8.0"
+
 * <xref:spa/angular>
 * <xref:spa/react>
-* [Hosting Startup Assemblies](xref:fundamentals/host/web-host#hosting-startup-assemblies)
+
+:::moniker-end
