@@ -4,7 +4,7 @@ author: rick-anderson
 ms.author: jacalvar
 monikerRange: '>= aspnetcore-6.0'
 description: Overview of Single Page Applications (SPA) in ASP.NET Core
-ms.date: 2/11/2023
+ms.date: 09/01/2023
 uid: spa/intro
 ---
 <!-- Content from https://github.com/dotnet/AspNetCore.Docs/issues/26373 -->
@@ -138,9 +138,3 @@ The ASP.NET Core SPA templates can be updated in a patch release to a new SPA fr
 * <xref:security/authentication/identity/spa>
 * [Hosting Startup Assemblies](xref:fundamentals/host/web-host#hosting-startup-assemblies)
 
-:::moniker range="< aspnetcore-8.0"
-
-* <xref:spa/angular>
-* <xref:spa/react>
-
-:::moniker-end
