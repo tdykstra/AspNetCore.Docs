@@ -2,7 +2,7 @@
 title: Overview of Single Page Applications (SPA) in ASP.NET Core
 author: rick-anderson
 ms.author: jacalvar
-monikerRange: '>= aspnetcore-6.0'
+monikerRange: '>= aspnetcore-6.0 < aspnetcore-8.0'
 description: Overview of Single Page Applications (SPA) in ASP.NET Core
 ms.date: 09/01/2023
 uid: spa/intro
@@ -131,10 +131,9 @@ The ASP.NET Core SPA templates can be updated in a patch release to a new SPA fr
 
 ## Additional resources
 
-* [Angular with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-angular)
-* [React with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-react)
-* [Vue with Visual Studio](/visualstudio/javascript/tutorial-asp-net-core-with-vue)
-* [JavaScript and TypeScript in Visual Studio](/visualstudio/javascript)
+
 * <xref:security/authentication/identity/spa>
+* <xref:spa/angular>
+* <xref:spa/react>
 * [Hosting Startup Assemblies](xref:fundamentals/host/web-host#hosting-startup-assemblies)
 
