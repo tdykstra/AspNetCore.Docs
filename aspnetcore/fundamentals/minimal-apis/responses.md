@@ -155,7 +155,7 @@ app.MapGet("/405", () => Results.StatusCode(405));
 #### Internal Server Error
 
 ```csharp
-app.MapGet("/", () => TypedResults.InternalServerError("Something went wrong!"));
+app.MapGet("/", () => Results.InternalServerError("Something went wrong!"));
 ```
 
 The preceding example returns a 500 status code.
