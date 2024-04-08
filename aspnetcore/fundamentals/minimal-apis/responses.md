@@ -4,7 +4,7 @@ author: brunolins16
 description: Learn how to create responses for minimal APIs in ASP.NET Core.
 ms.author: brolivei
 monikerRange: '>= aspnetcore-7.0'
-ms.date: 04/05/2024
+ms.date: 04/08/2024
 uid: fundamentals/minimal-apis/responses
 ---
 
@@ -155,7 +155,7 @@ app.MapGet("/405", () => Results.StatusCode(405));
 #### Internal Server Error
 
 ```csharp
-app.MapGet("/", () => Results.InternalServerError("Something went wrong!"));
+app.MapGet("/500", () => Results.InternalServerError("Something went wrong!"));
 ```
 
 The preceding example returns a 500 status code.
