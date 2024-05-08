@@ -2,7 +2,7 @@
 ms.topic: include
 author: mgravell
 ms.author: marcgravell
-ms.date: 05/02/2024
+ms.date: 05/07/2024
 ---
 ### New `HybridCache` library
 
@@ -13,7 +13,7 @@ The [`HybridCache`](https://source.dot.net/#Microsoft.Extensions.Caching.Hybrid/
 
 `HybridCache` is designed to be a drop-in replacement for existing `IDistributedCache` and `IMemoryCache` usage, and it provides a simple API for adding new caching code. It provides a unified API for both in-process and out-of-process caching.
 
-To understand the `HybridCache` API, compare it to `IDistributedCache` code. Here's an example of a service that uses `IDistributedCache`:
+To understand the `HybridCache` API, compare it to `IDistributedCache` code. Here's an example of what using `IDistributedCache` looks like:
 
 ```cs
 public class SomeService(IDistributedCache cache)
@@ -79,8 +79,9 @@ public class SomeService(HybridCache cache)
 }
 ```
 
-The `HybridCache` implementation deals with everything related to caching, including concurrent operation handling. The `cancel` token here represents the combined cancellation of *all* concurrent callers&mdash;not just the cancellation of the caller we can see (`token`). High throughput scenarios, can be further
-optimized by using the `TState` pattern, to avoid some overhead from "captured" variables and per-instance callbacks:
+We provide a concrete implementation of the `HybridCache` abstract class via dependency injection, but it's intended that developers can provide custom implementations of the API. The `HybridCache` implementation deals with everything related to caching, including concurrent operation handling. The `cancel` token here represents the combined cancellation of *all* concurrent callers&mdash;not just the cancellation of the caller we can see (that is, `token`).
+
+High throughput scenarios can be further optimized by using the `TState` pattern, to avoid some overhead from "captured" variables and per-instance callbacks:
 
 ```cs
 public class SomeService(HybridCache cache)
@@ -101,20 +102,25 @@ public class SomeService(HybridCache cache)
 `HybridCache` uses the configured `IDistributedCache` implementation, if any, for secondary out-of-process caching, for example, using
 Redis. But even without an `IDistributedCache`, the `HybridCache` service will still provide in-process caching and "stampede" protection. For more information, see     [Distributed caching](https://learn.microsoft.com/aspnet/core/performance/caching/distributed).
 
-### A note on object reuse
+#### A note on object reuse
 
-Because a lot of `HybridCache` usage will be adapted from existing `IDistributedCache` code, we need to be mindful that *existing* code will usually
-be deserializing every call - which means that concurrent callers will get separate object instances that cannot interact and are inherently
-thread-safe. To avoid introducing concurrency bugs into code, `HybridCache` preserves this behaviour by default, but if your scenario is itself
-thread-safe (either because the types are fundamentally immutable, or because you're just *not mutating them*), you can hint to `HybridCache`
-that it can safely reuse instances by marking the type (`SomeInformation` in this case) as `sealed` and using the `[ImmutableObject(true)]` annotation,
-which can significantly reduce per-call deserialization overheads of CPU and object allocations.
+In typical existing code that uses `IDistributedCache`, every retrieval of an object from the cache results in deserialization. This behavior means that each concurrent caller gets a separate instance of the object, which cannot interact with other instances. The result is thread safety, as there's no risk of concurrent modifications to the same object instance.
 
-### Other `HybridCache` features
+Because a lot of `HybridCache` usage will be adapted from existing `IDistributedCache` code, `HybridCache` preserves this behavior by default to avoid introducing concurrency bugs. However, a given use case is inherently thread-safe:
 
-As you might expect for parity with `IDistributedCache`, `HybridCache` supports explicit removal by key (`cache.RemoveKeyAsync(...)`). `HybridCache`
-also introduces new optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations (this feature is implemented
-by the preview versions of `Microsoft.Extensions.Caching.StackExchangeRedis` and `Microsoft.Extensions.Caching.SqlServer`).
+* If the types being cached are immutable.
+* If the code doesn't modify them.
+
+In such cases, inform `HybridCache` that it's safe to reuse instances by marking the type as `sealed` and using the `[ImmutableObject(true)]` attribute. The `sealed` keyword in C# means that the class cannot be inherited, and the `[ImmutableObject(true)]` attribute indicates that the object's state cannot be changed after it's created.
+
+By reusing instances, `HybridCache` can reduce the overhead of CPU and object allocations associated with per-call deserialization. This can lead to performance improvements in scenarios where the cached objects are large or accessed frequently.
+
+#### Other `HybridCache` features
+
+Like `IDistributedCache`, `HybridCache` supports removal by key with a `RemoveKeyAsync` method.
+
+ `HybridCache` also provides optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations. This feature is implemented
+by the preview versions of `Microsoft.Extensions.Caching.StackExchangeRedis` and `Microsoft.Extensions.Caching.SqlServer`.
 
 Serialization is configured as part of registering the service, with support for type-specific and generalized serializers via the
 `.WithSerializer(...)` and `.WithSerializerFactory(...)` methods, chained from the `AddHybridCache(...)` call. By default, the library
