@@ -2,7 +2,7 @@
 ms.topic: include
 author: mgravell
 ms.author: marcgravell
-ms.date: 05/07/2024
+ms.date: 05/08/2024
 ---
 ### New `HybridCache` library
 
@@ -111,7 +111,10 @@ Because a lot of `HybridCache` usage will be adapted from existing `IDistributed
 * If the types being cached are immutable.
 * If the code doesn't modify them.
 
-In such cases, inform `HybridCache` that it's safe to reuse instances by marking the type as `sealed` and using the `[ImmutableObject(true)]` attribute. The `sealed` keyword in C# means that the class cannot be inherited, and the `[ImmutableObject(true)]` attribute indicates that the object's state cannot be changed after it's created.
+In such cases, inform `HybridCache` that it's safe to reuse instances by:
+
+* Marking the type as `sealed`. The `sealed` keyword in C# means that the class cannot be inherited.
+* Applying the `[ImmutableObject(true)]` attribute to it. Yhe `[ImmutableObject(true)]` attribute indicates that the object's state cannot be changed after it's created.
 
 By reusing instances, `HybridCache` can reduce the overhead of CPU and object allocations associated with per-call deserialization. This can lead to performance improvements in scenarios where the cached objects are large or accessed frequently.
 
@@ -119,18 +122,14 @@ By reusing instances, `HybridCache` can reduce the overhead of CPU and object al
 
 Like `IDistributedCache`, `HybridCache` supports removal by key with a `RemoveKeyAsync` method.
 
- `HybridCache` also provides optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations. This feature is implemented
+`HybridCache` also provides optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations. This feature is implemented
 by the preview versions of `Microsoft.Extensions.Caching.StackExchangeRedis` and `Microsoft.Extensions.Caching.SqlServer`.
 
 Serialization is configured as part of registering the service, with support for type-specific and generalized serializers via the
-`.WithSerializer(...)` and `.WithSerializerFactory(...)` methods, chained from the `AddHybridCache(...)` call. By default, the library
+`WithSerializer` and `.WithSerializerFactory` methods, chained from the `AddHybridCache` call. By default, the library
 handles `string` and `byte[]` internally, and uses `System.Text.Json` for everything else, but if you want to use protobuf, xml, or anything
 else: that's easy to do.
 
-`HybridCache` includes support for older .NET runtimes, down to .NET Framework 4.7.2 and .NET Standard 2.0.
+`HybridCache` supports older .NET runtimes, down to .NET Framework 4.7.2 and .NET Standard 2.0.
 
-Outstanding `HybridCache` work includes:
-
-- support for "tagging" (similar to how tagging works for "Output Cache"), allowing invalidation of entire *categories* of data
-- backend-assisted cache invalidation, for backends that can provide suitable change notifications
-- relocation of the core abstractions to `Microsoft.Extensions.Caching.Abstractions`
+For more information about `HybridCache`, including planned features, see GitHub issue [dotnet/aspnetcore #54647](https://github.com/dotnet/aspnetcore/issues/54647).
