@@ -4,28 +4,20 @@ author: tdykstra
 description: Learn how to use HybridCache library in ASP.NET Core.
 monikerRange: '>= aspnetcore-9.0'
 ms.author: tdykstra
-ms.date: 05/08/2024
+ms.date: 05/09/2024
 uid: performance/caching/output
 ---
 # HybridCache library in ASP.NET Core
 
-[!INCLUDE[](~/includes/not-latest-version.md)]
+[!INCLUDE[](~/includes/not-ga-yet.md)] 
 
-what is it
-    main features
-    abstract class with default implementation
-how to get it
-how to use it
+<!--
+[!INCLUDE[](~/includes/not-latest-version.md)] 
+Uncomment this when 9.0 is the default value in the version selector.
+-->
 
+This article explains how to configure and use the `HybridCache` library in an ASP.NET Core app. For an introduction to the library, see [HybridCache](xref:performance/caching/overview#hybridcache).
 
-
-
-The [`HybridCache`](https://source.dot.net/#Microsoft.Extensions.Caching.Hybrid/Runtime/HybridCache.cs,8c0fe94693d1ac8d) API bridges some gaps in the existing <xref:Microsoft.Extensions.Caching.Distributed.IDistributedCache> and <xref:Microsoft.Extensions.Caching.Memory.IMemoryCache> APIs. It also adds new capabilities, such as:
-
-* **"Stampede" protection** to prevent parallel fetches of the same work.
-* Configurable serialization.
-
-`HybridCache` is designed to be a drop-in replacement for existing `IDistributedCache` and `IMemoryCache` usage, and it provides a simple API for adding new caching code. It provides a unified API for both in-process and out-of-process caching.
 
 To understand the `HybridCache` API, compare it to `IDistributedCache` code. Here's an example of what using `IDistributedCache` looks like:
 
@@ -114,7 +106,7 @@ public class SomeService(HybridCache cache)
 ```
 
 `HybridCache` uses the configured `IDistributedCache` implementation, if any, for secondary out-of-process caching, for example, using
-Redis. But even without an `IDistributedCache`, the `HybridCache` service will still provide in-process caching and "stampede" protection. For more information, see     [Distributed caching](https://learn.microsoft.com/aspnet/core/performance/caching/distributed).
+Redis. But even without an `IDistributedCache`, the `HybridCache` service will still provide in-process caching and "stampede" protection. For more information, see [Distributed caching](https://learn.microsoft.com/aspnet/core/performance/caching/distributed).
 
 #### A note on object reuse
 
@@ -136,13 +128,11 @@ By reusing instances, `HybridCache` can reduce the overhead of CPU and object al
 
 Like `IDistributedCache`, `HybridCache` supports removal by key with a `RemoveKeyAsync` method.
 
-`HybridCache` also provides optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations. This feature is implemented
-by the preview versions of `Microsoft.Extensions.Caching.StackExchangeRedis` and `Microsoft.Extensions.Caching.SqlServer`.
+`HybridCache` also provides optional APIs for `IDistributedCache` implementations, to avoid `byte[]` allocations. This feature is implemented by the preview versions of `Microsoft.Extensions.Caching.StackExchangeRedis` and `Microsoft.Extensions.Caching.SqlServer`.
 
 Serialization is configured as part of registering the service, with support for type-specific and generalized serializers via the
 `WithSerializer` and `.WithSerializerFactory` methods, chained from the `AddHybridCache` call. By default, the library
-handles `string` and `byte[]` internally, and uses `System.Text.Json` for everything else, but if you want to use protobuf, xml, or anything
-else: that's easy to do.
+handles `string` and `byte[]` internally, and uses `System.Text.Json` for everything else, but if you want to use protobuf, xml, or anything else: that's easy to do.
 
 `HybridCache` supports older .NET runtimes, down to .NET Framework 4.7.2 and .NET Standard 2.0.
 
