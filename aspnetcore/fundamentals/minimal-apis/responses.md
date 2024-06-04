@@ -28,6 +28,8 @@ Minimal endpoints support the following types of return values:
 
 Consider the following route handler, which returns a `Hello world` text. 
 
+:::code language="csharp" source="~/fundamentals/minimal-apis/9.0-samples/Snippets/Program.cs" :::
+
 :::code language="csharp" source="~/fundamentals/minimal-apis/9.0-samples/Snippets/Program.cs" id="snippet_01":::
 
 The `200` status code is returned with `text/plain` Content-Type header and the following content.
