@@ -7,6 +7,7 @@ ms.custom: mvc
 ms.date: 09/07/2024
 uid: security/docker-https
 ---
+<!-- ms.sfi.ropc: t -->
 # Hosting ASP.NET Core images with Docker over HTTPS
 
 :::moniker range=">= aspnetcore-8.0"
