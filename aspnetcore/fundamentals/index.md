@@ -27,12 +27,13 @@ ASP.NET Core apps created with the web templates contain the application startup
 
 The following app startup code supports:
 
+* [Blazor Web App](xref:blazor/index)
 * [Razor Pages](xref:tutorials/razor-pages/razor-pages-start)
 * [MVC controllers with views](xref:tutorials/first-mvc-app/start-mvc)
 * [Web API with controllers](xref:tutorials/first-web-api)
 * [Minimal web APIs](xref:tutorials/min-web-api)
 
-[!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet)]
+[!code-csharp[](~/fundamentals/startup/9.0_samples/WebAll/Program.cs?name=snippet)]
 
 ## Dependency injection (services)
 
@@ -42,7 +43,7 @@ ASP.NET Core includes [dependency injection (DI)](xref:fundamentals/dependency-i
 
 In the preceding highlighted code, `builder` has configuration, logging, and [many other services](xref:fundamentals/dependency-injection#framework-provided-services) added to the DI container.
 
-The following code adds Razor Pages, MVC controllers with views, and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
+The following code adds Blazor components, Razor Pages, MVC controllers with views, and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
 
 [!code-csharp[](~/fundamentals/index/samples/6.0/RazorPagesMovie/Program.cs?name=snippet2&highlight=6-10)]
 

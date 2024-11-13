@@ -3,10 +3,10 @@
 
 #if NEVER
 #elif DEFAULT
-#region snippet
-#region snippet2
-using WebAll.Components;
 
+using WebAll.Components;
+// <snippet>
+// </snippet2>
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,7 +16,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-#endregion
+// </snippet2>
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -41,7 +41,7 @@ app.MapRazorComponents<App>()
 app.UseAntiforgery();
 
 app.Run();
-#endregion
+// </snippet>
 #elif D2
 #region snippet4
 var builder = WebApplication.CreateBuilder(args);
