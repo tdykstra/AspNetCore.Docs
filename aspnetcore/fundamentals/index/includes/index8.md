@@ -1,5 +1,6 @@
 :::moniker range="= aspnetcore-8.0"
 
+<<<<<<< HEAD
 ---
 title: ASP.NET Core fundamentals overview
 author: tdykstra
@@ -16,6 +17,8 @@ uid: fundamentals/index
 
 :::moniker range=">= aspnetcore-8.0"
 
+=======
+>>>>>>> 38acaae8cc74fca8174db9a5267a899fac5f5c01
 This article provides an overview of the fundamentals for building ASP.NET Core apps, including dependency injection (DI), configuration, middleware, and more.
 
 For Blazor fundamentals guidance, which adds to or supersedes the guidance in this node, see <xref:blazor/fundamentals/index>.
@@ -232,4 +235,7 @@ For more information, see <xref:fundamentals/static-files>.
 * [WebApplicationBuilder source code](https://github.com/dotnet/aspnetcore/blob/v6.0.1/src/DefaultBuilder/src/WebApplicationBuilder.cs)
 
 :::moniker-end
+<<<<<<< HEAD
 
+=======
+>>>>>>> 38acaae8cc74fca8174db9a5267a899fac5f5c01
