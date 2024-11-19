@@ -43,11 +43,29 @@ ASP.NET Core includes [dependency injection (DI)](xref:fundamentals/dependency-i
 
 In the preceding highlighted code, `builder` has configuration, logging, and [many other services](xref:fundamentals/dependency-injection#framework-provided-services) added to the DI container.
 
-The following code adds Blazor components, Razor Pages, MVC controllers with views, and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
+The following code adds Blazor components and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
 
-[!code-csharp[](~/fundamentals/index/samples/6.0/RazorPagesMovie/Program.cs?name=snippet2&highlight=6-10)]
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContextFactory<BlazorWebAppMoviesContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlazorWebAppMoviesContext") ?? throw new InvalidOperationException("Connection string 'BlazorWebAppMoviesContext' not found.")));
 
-Services are typically resolved from DI using constructor injection. The DI framework provides an instance of this service at runtime.
+builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+var app = builder.Build();
+```
+<!--
+https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Program.cs#L6-L18
+Copied 11/18/2024000
+ -->
+
+Services are typically resolved from DI using constructor injection. The DI framework provides an instance of a requested service at run time.
 
 The following code uses constructor injection to resolve the database context and logger from DI:
 
