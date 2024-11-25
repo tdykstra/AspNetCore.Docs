@@ -48,7 +48,9 @@ The following code adds Blazor components and a custom <xref:Microsoft.EntityFra
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextFactory<BlazorWebAppMoviesContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BlazorWebAppMoviesContext") ?? throw new InvalidOperationException("Connection string 'BlazorWebAppMoviesContext' not found.")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString
+        ("BlazorWebAppMoviesContext") ?? throw new InvalidOperationException
+            ("Connection string 'BlazorWebAppMoviesContext' not found.")));
 
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
@@ -75,9 +77,40 @@ The following code uses constructor injection to resolve the database context an
 
 The request handling pipeline is composed as a series of middleware components. Each component performs operations on an [`HttpContext`](xref:fundamentals/httpcontext) and either invokes the next middleware in the pipeline or terminates the request.
 
-By convention, a middleware component is added to the pipeline by invoking a `Use{Feature}` extension method. Middleware added to the app is highlighted in the following code:
+By convention, a middleware component is added to the pipeline by invoking a `Use{Feature}` extension method. The use of methods named `Use{Feature}` to add middleware to an app is illustrated in the following code:
 
-[!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet&highlight=12-19)]
+```csharp
+using BlazorApp1.Components;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+
+app.UseAntiforgery();
+
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.Run();
+```
+<!--
+New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
+-->
 
 For more information, see <xref:fundamentals/middleware/index>.
 
@@ -97,9 +130,22 @@ There are three different hosts capable of running an ASP.NET Core app:
 * [.NET Generic Host](xref:fundamentals/host/generic-host) combined with ASP.NET Core's <xref:Microsoft.Extensions.Hosting.GenericHostBuilderExtensions.ConfigureWebHostDefaults%2A>
 * [ASP.NET Core WebHost](xref:fundamentals/host/web-host)
 
-The ASP.NET Core <xref:Microsoft.AspNetCore.Builder.WebApplication> and <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder> types are recommended and used in all the ASP.NET Core templates. `WebApplication` behaves similarly to the .NET Generic Host and exposes many of the same interfaces but requires less callbacks to configure. The ASP.NET Core <xref:Microsoft.AspNetCore.WebHost> is available only for backward compatibility.
+The ASP.NET Core <xref:Microsoft.AspNetCore.Builder.WebApplication> and <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder> types are recommended and used in all the ASP.NET Core templates. `WebApplication` behaves similarly to the .NET Generic Host and exposes many of the same interfaces but requires fewer callbacks to configure. The ASP.NET Core <xref:Microsoft.AspNetCore.WebHost> is available only for backward compatibility.
 
-The following example instantiates a `WebApplication`:
+The following example instantiates a `WebApplication` and names it `app`:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+var app = builder.Build();
+```
+<!--
+New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
+-->
 
 [!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet2&highlight=7)]
 
@@ -111,11 +157,11 @@ The [WebApplicationBuilder.Build](xref:Microsoft.AspNetCore.Builder.WebApplicati
 
 ### Non-web scenarios
 
-The Generic Host allows other types of apps to use cross-cutting framework extensions, such as logging, dependency injection (DI), configuration, and app lifetime management. For more information, see <xref:fundamentals/host/generic-host> and <xref:fundamentals/host/hosted-services>.
+The Generic Host enables other types of apps to use cross-cutting framework extensions, such as logging, dependency injection (DI), configuration, and app lifetime management. For more information, see <xref:fundamentals/host/generic-host> and <xref:fundamentals/host/hosted-services>.
 
 ## Servers
 
-An ASP.NET Core app uses an HTTP server implementation to listen for HTTP requests. The server surfaces requests to the app as a set of [request features](xref:fundamentals/request-features) composed into an `HttpContext`.
+An ASP.NET Core app uses an HTTP server implementation to listen for HTTP requests. The server surfaces requests to the app as a set of [request features](xref:fundamentals/request-features) composed into an <xref:Microsoft.AspNetCore.Http.HttpContext>.
 
 # [Windows](#tab/windows)
 
@@ -143,7 +189,7 @@ ASP.NET Core provides a [configuration](xref:fundamentals/configuration/index) f
 
 By [default](xref:fundamentals/configuration/index#default), ASP.NET Core apps are configured to read from `appsettings.json`, environment variables, the command line, and more. When the app's configuration is loaded, values from environment variables override values from `appsettings.json`.
 
-For managing confidential configuration data such as passwords, .NET Core provides the [Secret Manager](xref:security/app-secrets#secret-manager). For production secrets, we recommend [Azure Key Vault](xref:security/key-vault-configuration).
+For managing confidential configuration data such as passwords in the development environment, .NET Core provides the [Secret Manager](xref:security/app-secrets#secret-manager). For production secrets, we recommend [Azure Key Vault](xref:security/key-vault-configuration).
 
 For more information, see <xref:fundamentals/configuration/index>.
 
@@ -153,7 +199,36 @@ Execution environments, such as `Development`, `Staging`, and `Production`, are 
 
 The following example configures the exception handler and [HTTP Strict Transport Security Protocol (HSTS)](xref:security/enforcing-ssl#http-strict-transport-security-protocol-hsts) middleware when ***not*** running in the `Development` environment:
 
-[!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet&highlight=10-14)]
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+
+app.UseAntiforgery();
+
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.Run();
+```
+<!--
+New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
+-->
 
 For more information, see <xref:fundamentals/environments>.
 
