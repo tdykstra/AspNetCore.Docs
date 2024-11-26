@@ -323,7 +323,7 @@ For more information, see <xref:fundamentals/static-files>.
 
 ## Additional resources
 
-* [WebApplicationBuilder source code](hhttps://github.com/dotnet/aspnetcore/blob/v9.0.0/src/DefaultBuilder/src/WebApplicationBuilder.cs)
+* <xref:blazor/fundamentals/index>
 
 :::moniker-end
 
