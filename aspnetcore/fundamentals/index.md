@@ -35,13 +35,15 @@ The following app startup code supports:
 
 [!code-csharp[](~/fundamentals/startup/9.0_samples/WebAll/Program.cs?name=snippet)]
 
+For new development of web front ends, we recommend Blazor Web Apps; and for new development of web APIs, we recommend Minimal APIs. The other app models remain fully supported.
+
 ## Dependency injection (services)
 
-ASP.NET Core includes [dependency injection (DI)](xref:fundamentals/dependency-injection) that makes configured services available throughout an app. Services are added to the DI container with [WebApplicationBuilder.Services](xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder.Services), `builder.Services` in the preceding code. When the <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder> is instantiated, many [framework-provided services](xref:fundamentals/dependency-injection#framework-provided-services) are added. `builder` is a `WebApplicationBuilder` in the following code:
+ASP.NET Core features built-in [dependency injection (DI)](xref:fundamentals/dependency-injection) that makes configured services available throughout an app. Services are added to the DI container with [WebApplicationBuilder.Services](xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder.Services), `builder.Services` in the preceding code. When the <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder> is instantiated, many [framework-provided services](xref:fundamentals/dependency-injection#framework-provided-services) are added automatically. `builder` is a `WebApplicationBuilder` in the following code:
 
 [!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet2&highlight=1)]
 
-In the preceding highlighted code, `builder` has configuration, logging, and [many other services](xref:fundamentals/dependency-injection#framework-provided-services) added to the DI container.
+In the preceding highlighted code, `builder` has configuration, logging, and [many other services](xref:fundamentals/dependency-injection#framework-provided-services) added to the DI container. The DI framework provides an instance of a requested service at run time.
 
 The following code adds Blazor components and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
 
@@ -64,18 +66,81 @@ var app = builder.Build();
 ```
 <!--
 https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Program.cs#L6-L18
-Copied 11/18/2024000
+Copied 11/18/2024
  -->
 
-The DI framework provides an instance of a requested service at run time.
+One way to resolve services from DI at run time is to use the `@inject` directive in a Razor component, as shown in the following example:
 
-One way to resolve services from DI at run time is by using constructor injection. Another way is to use the @inject Razor directive.
+```csharp
+@page "/movies"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorWebAppMovies.Models
+@using BlazorWebAppMovies.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorWebAppMovies.Data.BlazorWebAppMoviesContext> DbFactory
 
-The following code uses constructor injection to resolve the database context and logger from DI:
+<PageTitle>Index</PageTitle>
 
- [!code-csharp[](~/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml.cs?name=snippet&highlight=3-10, 16-17)]
+<h1>Index</h1>
 
-* For more information, see <xref:blazor/fundamentals/dependency-injection>.
+<div>
+    <input type="search" @bind="titleFilter" @bind:event="oninput" />
+</div>
+
+<p>
+    <a href="movies/create">Create New</a>
+</p>
+
+<div>
+    <QuickGrid Class="table" Items="FilteredMovies" Pagination="pagination">
+        <PropertyColumn Property="movie => movie.Title" Sortable="true" />
+        <PropertyColumn Property="movie => movie.ReleaseDate" Title="Release Date" />
+        <PropertyColumn Property="movie => movie.Genre" />
+        <PropertyColumn Property="movie => movie.Price" />
+        <PropertyColumn Property="movie => movie.Rating" />
+
+        <TemplateColumn Context="movie">
+            <a href="@($"movies/edit?id={movie.Id}")">Edit</a> |
+            <a href="@($"movies/details?id={movie.Id}")">Details</a> |
+            <a href="@($"movies/delete?id={movie.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+</div>
+
+<Paginator State="pagination" />
+
+@code {
+    private BlazorWebAppMoviesContext context = default!;
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 5 };
+    private string titleFilter = string.Empty;
+
+    private IQueryable<Movie> FilteredMovies =>
+        context.Movie.Where(m => m.Title!.Contains(titleFilter));
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
+```
+<!--
+Copied from https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Components/Pages/MoviePages/Index.razor
+On 11/30/2024
+-->
+
+In the preceding code, the `@inject` directive is near the `@using` directives at the top of the file, and the service is resolved in the `OnInitialized` me, which assigns it to the `context` variable. The `context` service is used to create the `FilteredMovie` list.
+
+Another way to resolve a service from DI is by using constructor injection. The following Razor Pages code uses constructor injection to resolve the database context and logger from DI:
+
+ [!code-csharp[](~/aspnetcore/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml.cs?name=snippet&highlight=3-10, 16-17)]
+
+In the preceding code, the `IndexModel` constructor takes a parameter of type `RazorPagesMovieContext`, which is resolved at run time into the `_context` variable. It's used to create a list of movies in the `OnGetAsync` method.
+
+* For more information, see <xref:blazor/fundamentals/dependency-injection> and <xref:fundamentals/dependency-injection>.
 
 ## Middleware
 
