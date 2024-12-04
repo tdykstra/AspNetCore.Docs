@@ -132,9 +132,9 @@ Copied from https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppM
 On 11/30/2024
 -->
 
-In the preceding code, the `@inject` directive is near the `@using` directives at the top of the file, and the service is resolved in the `OnInitialized` me, which assigns it to the `context` variable. The `context` service is used to create the `FilteredMovie` list.
+In the preceding code, the `@inject` directive is at the top of the file, and the service is resolved in the `OnInitialized` method, which assigns it to the `context` variable. The `context` service is used to create the `FilteredMovie` list.
 
-Another way to resolve a service from DI is by using constructor injection. The following Razor Pages code uses constructor injection to resolve the database context and logger from DI:
+Another way to resolve a service from DI is by using constructor injection. The following Razor Pages code uses constructor injection to resolve the database context from DI:
 
  [!code-csharp[](~/aspnetcore/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml.cs?name=snippet&highlight=3-10, 16-17)]
 
@@ -142,6 +142,90 @@ In the preceding code, the `IndexModel` constructor takes a parameter of type `R
 
 * For more information, see <xref:blazor/fundamentals/dependency-injection> and <xref:fundamentals/dependency-injection>.
 
+## Logging
+
+To write logs, call `Log{Level}` methods on a logger object that you get from DI. The following example shows how to get it from DI and how to use it in a `.cshtml` file that creates a page for a Blazor Web app.
+
+```csharp
+@page "/weather"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@inject ILogger<Weather> Logger
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+@code {
+    private void LogMessage()
+    {
+        Logger.LogInformation("This is an information log message.");
+        Logger.LogWarning("This is a warning log message.");
+        Logger.LogError("This is an error log message.");
+    }
+}
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+  else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                <th aria-label="Temperature in Farenheit">Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+        LogMessage();
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+    }
+
+   private class WeatherForecast
+   {
+       public DateOnly Date { get; set; }
+       public int TemperatureC { get; set; }
+       public string? Summary { get; set; }
+       public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+   }
+}
+```
+<!-- This is the .cshtml file for the Weather page in the project template for Blazor Web Apps.
+An @inject directive, a LogMessage method, and a call to that method have been added. -->
+
+A logger that writes to the console is saved in the DI container automatically when the <xref:Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder%2A> method is called in `Program.cs`.
+
+ 
 ## Middleware
 
 The request handling pipeline is composed as a series of middleware components. Each component performs operations on an [`HttpContext`](xref:fundamentals/httpcontext) and either invokes the next middleware in the pipeline or terminates the request.
