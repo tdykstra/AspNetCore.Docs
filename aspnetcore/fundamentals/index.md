@@ -163,85 +163,9 @@ ASP.NET Core supports a logging API that works with a variety of built-in and th
 * Azure App Service
 * Azure Application Insights
 
-To create logs, resolve an <xref:Microsoft.Extensions.Logging.ILogger%601> service from dependency injection (DI) and call logging methods such as <xref:Microsoft.Extensions.Logging.LoggerExtensions.LogInformation%2A>. The following example shows how to get the logger and use it in a `.cshtml` file that creates a page for a Blazor Web app. A logger object and the console provider are stored in the DI container automatically when the <xref:Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder%2A> method is called in `Program.cs`.
+To create logs, resolve an <xref:Microsoft.Extensions.Logging.ILogger%601> service from dependency injection (DI) and call logging methods such as <xref:Microsoft.Extensions.Logging.LoggerExtensions.LogInformation%2A>. The following example shows how to get the logger in a `.razor` file for a page in a Blazor Web app. A logger object and a console provider for it are stored in the DI container automatically when the <xref:Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder%2A> method is called in `Program.cs`.
 
-
-```csharp
-@page "/weather"
-@attribute [StreamRendering]
-@rendermode InteractiveServer
-@inject ILogger<Weather> Logger
-
-<PageTitle>Weather</PageTitle>
-
-<h1>Weather</h1>
-
-@code {
-    private void LogMessage()
-    {
-        Logger.LogInformation("This is an information log message.");
-        Logger.LogWarning("This is a warning log message.");
-        Logger.LogError("This is an error log message.");
-    }
-}
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-  else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Farenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@code {
-    private WeatherForecast[]? forecasts;
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-        LogMessage();
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
-
-   private class WeatherForecast
-   {
-       public DateOnly Date { get; set; }
-       public int TemperatureC { get; set; }
-       public string? Summary { get; set; }
-       public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-   }
-}
-```
-<!-- This is the .cshtml file for the Weather page in the project template for Blazor Web Apps.
-An @inject directive, a LogMessage method, and a call to that method have been added. -->
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Weather.cshtml" highlight="3,49-51":::
 
 For more information, see <xref:fundamentals/logging/index>.
 
