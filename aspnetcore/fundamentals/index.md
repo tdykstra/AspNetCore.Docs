@@ -39,27 +39,27 @@ The following app startup code supports several app types:
 
 ASP.NET Core features built-in [dependency injection (DI)](xref:fundamentals/dependency-injection) that makes configured services available throughout an app. Services are added to the DI container with [WebApplicationBuilder.Services](xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder.Services), `builder.Services` in the preceding code. When the <xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder> is instantiated, many [framework-provided services](xref:fundamentals/dependency-injection#framework-provided-services) are added automatically. `builder` is a `WebApplicationBuilder` in the following code:
 
-[!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet2&highlight=1)]
+:::code language="csharp" source="~/fundamentals/startup/6.0_samples/WebAll/Program.cs" id="snippet2" highlight ="1":::
 
 In the preceding highlighted code, `builder` has configuration, logging, and [many other services](xref:fundamentals/dependency-injection#framework-provided-services) added to the DI container. The DI framework provides an instance of a requested service at run time.
 
 The following code adds Blazor components and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
 
-:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" highlight="2-4,11-12":::
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" id="snippet_services" highlight="2-4,11-12":::
 
 In Blazor Web Apps, services are often resolved from DI at run time by using the `@inject` directive in a Razor component, as shown in the following example:
 
-:::code language="rrazor" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Index.razor.cshtml" highlight ="8,42,46":::
+:::code language="razor" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Index.razor.cshtml" highlight ="8,42,46":::
 
 In the preceding code:
 
 * The `@inject` directive is near the top of the file.
-* The service is resolved in the `OnInitialized` method, which assigns it to the `context` variable.
-* The `context` service is used to create the `FilteredMovie` list.
+* The service is resolved in the `OnInitialized` method and assigned to the `context` variable.
+* The `context` service creates the `FilteredMovie` list.
 
 Another way to resolve a service from DI is by using constructor injection. The following Razor Pages code uses constructor injection to resolve the database context from DI:
 
- [!code-csharp[](~/aspnetcore/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml.cs?name=snippet&highlight=3-10, 16-17)]
+ :::code language="csharp" source="~/aspnetcore/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml id="snippet" highlight=3-10, 16-17:::
 
 In the preceding code, the `IndexModel` constructor takes a parameter of type `RazorPagesMovieContext`, which is resolved at run time into the `_context` variable. The context object is used to create a list of movies in the `OnGetAsync` method.
 
@@ -71,38 +71,7 @@ The request handling pipeline is composed as a series of middleware components. 
 
 By convention, a middleware component is added to the pipeline by invoking a `Use{Feature}` extension method. The use of methods named `Use{Feature}` to add middleware to an app is illustrated in the following code:
 
-```csharp
-using BlazorApp.Components;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.Run();
-```
-<!--
-New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
--->
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" id="snippet_middleware" highlight="12-14,17,20":::
 
 For more information, see <xref:fundamentals/middleware/index>.
 
@@ -126,20 +95,7 @@ The ASP.NET Core <xref:Microsoft.AspNetCore.Builder.WebApplication> and <xref:Mi
 
 The following example instantiates a `WebApplication` and names it `app`:
 
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-var app = builder.Build();
-```
-<!--
-New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
--->
-
-[!code-csharp[](~/fundamentals/startup/6.0_samples/WebAll/Program.cs?name=snippet2&highlight=7)]
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" id="snippet_services" highlight="14":::
 
 The [WebApplicationBuilder.Build](xref:Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build%2A) method configures a host with a set of default options, such as:
 
@@ -191,36 +147,7 @@ Execution environments, such as `Development`, `Staging`, and `Production`, are 
 
 The following example configures the exception handler and [HTTP Strict Transport Security Protocol (HSTS)](xref:security/enforcing-ssl#http-strict-transport-security-protocol-hsts) middleware when ***not*** running in the `Development` environment:
 
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.Run();
-```
-<!--
-New-project template code for a Blazor Web App targeting .NET 9.0, project created 11/25/2024.
--->
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" id="snippet_environments" highlight="1":::
 
 For more information, see <xref:fundamentals/environments>.
 

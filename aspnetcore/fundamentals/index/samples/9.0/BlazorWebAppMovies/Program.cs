@@ -2,7 +2,9 @@ using BlazorWebAppMovies.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using BlazorWebAppMovies.Data;
+// <snippet_middleware>
 // <snippet_services>
+// <snippet_webapplication>
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextFactory<BlazorWebAppMoviesContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MoviesContext") 
@@ -26,6 +28,7 @@ using (var scope = app.Services.CreateScope())
     SeedData.Initialize(services);
 }
 
+// <snippet_environments>
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -33,9 +36,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseMigrationsEndPoint();
 }
-
+// </snippet_environments>
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 
@@ -44,3 +46,5 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+// </snippet_webapplication>
+// </snippet_middleware>
