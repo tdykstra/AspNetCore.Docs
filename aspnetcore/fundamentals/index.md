@@ -25,7 +25,7 @@ ASP.NET Core apps created with the web templates contain the application startup
 * Services required by the app are configured.
 * The app's request handling pipeline is defined as a series of [middleware components](xref:fundamentals/middleware/index).
 
-The following app startup code supports:
+The following app startup code supports several app types:
 
 * [Blazor Web Apps](xref:blazor)
 * [Razor Pages](xref:tutorials/razor-pages/razor-pages-start)
@@ -34,8 +34,6 @@ The following app startup code supports:
 * [Minimal web APIs](xref:tutorials/min-web-api)
 
 [!code-csharp[](~/fundamentals/startup/9.0_samples/WebAll/Program.cs?name=snippet)]
-
-For new development of web front ends, we recommend Blazor Web Apps; and for new development of web APIs, we recommend Minimal APIs. The other app models remain fully supported.
 
 ## Dependency injection (services)
 
@@ -64,6 +62,7 @@ builder.Services.AddRazorComponents()
 
 var app = builder.Build();
 ```
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" highlight="123":::
 <!--
 https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Program.cs#L6-L18
 Copied 11/18/2024
