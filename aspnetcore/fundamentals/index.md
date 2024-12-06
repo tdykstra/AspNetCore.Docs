@@ -45,101 +45,25 @@ In the preceding highlighted code, `builder` has configuration, logging, and [ma
 
 The following code adds Blazor components and a custom <xref:Microsoft.EntityFrameworkCore.DbContext> to the DI container:
 
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContextFactory<BlazorWebAppMoviesContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString
-        ("BlazorWebAppMoviesContext") ?? throw new InvalidOperationException
-            ("Connection string 'BlazorWebAppMoviesContext' not found.")));
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" highlight="2-4,11-12":::
 
-builder.Services.AddQuickGridEntityFrameworkAdapter();
+In Blazor Web Apps, services are often resolved from DI at run time by using the `@inject` directive in a Razor component, as shown in the following example:
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+:::code language="rrazor" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Index.razor.cshtml" highlight ="8,42,46":::
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+In the preceding code:
 
-var app = builder.Build();
-```
-:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Program.cs" highlight="123":::
-<!--
-https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Program.cs#L6-L18
-Copied 11/18/2024
- -->
-
-One way to resolve services from DI at run time is to use the `@inject` directive in a Razor component, as shown in the following example:
-
-```csharp
-@page "/movies"
-@rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
-@using BlazorWebAppMovies.Models
-@using BlazorWebAppMovies.Data
-@implements IAsyncDisposable
-@inject IDbContextFactory<BlazorWebAppMovies.Data.BlazorWebAppMoviesContext> DbFactory
-
-<PageTitle>Index</PageTitle>
-
-<h1>Index</h1>
-
-<div>
-    <input type="search" @bind="titleFilter" @bind:event="oninput" />
-</div>
-
-<p>
-    <a href="movies/create">Create New</a>
-</p>
-
-<div>
-    <QuickGrid Class="table" Items="FilteredMovies" Pagination="pagination">
-        <PropertyColumn Property="movie => movie.Title" Sortable="true" />
-        <PropertyColumn Property="movie => movie.ReleaseDate" Title="Release Date" />
-        <PropertyColumn Property="movie => movie.Genre" />
-        <PropertyColumn Property="movie => movie.Price" />
-        <PropertyColumn Property="movie => movie.Rating" />
-
-        <TemplateColumn Context="movie">
-            <a href="@($"movies/edit?id={movie.Id}")">Edit</a> |
-            <a href="@($"movies/details?id={movie.Id}")">Details</a> |
-            <a href="@($"movies/delete?id={movie.Id}")">Delete</a>
-        </TemplateColumn>
-    </QuickGrid>
-</div>
-
-<Paginator State="pagination" />
-
-@code {
-    private BlazorWebAppMoviesContext context = default!;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 5 };
-    private string titleFilter = string.Empty;
-
-    private IQueryable<Movie> FilteredMovies =>
-        context.Movie.Where(m => m.Title!.Contains(titleFilter));
-
-    protected override void OnInitialized()
-    {
-        context = DbFactory.CreateDbContext();
-    }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
-}
-```
-<!--
-Copied from https://github.com/dotnet/blazor-samples/blob/main/9.0/BlazorWebAppMovies/Components/Pages/MoviePages/Index.razor
-On 11/30/2024
--->
-
-In the preceding code, the `@inject` directive is at the top of the file, and the service is resolved in the `OnInitialized` method, which assigns it to the `context` variable. The `context` service is used to create the `FilteredMovie` list.
+* The `@inject` directive is near the top of the file.
+* The service is resolved in the `OnInitialized` method, which assigns it to the `context` variable.
+* The `context` service is used to create the `FilteredMovie` list.
 
 Another way to resolve a service from DI is by using constructor injection. The following Razor Pages code uses constructor injection to resolve the database context from DI:
 
  [!code-csharp[](~/aspnetcore/fundamentals/index/samples/6.0/RazorPagesMovie/Pages/Movies/Index.cshtml.cs?name=snippet&highlight=3-10, 16-17)]
 
-In the preceding code, the `IndexModel` constructor takes a parameter of type `RazorPagesMovieContext`, which is resolved at run time into the `_context` variable. It's used to create a list of movies in the `OnGetAsync` method.
+In the preceding code, the `IndexModel` constructor takes a parameter of type `RazorPagesMovieContext`, which is resolved at run time into the `_context` variable. The context object is used to create a list of movies in the `OnGetAsync` method.
 
-* For more information, see <xref:blazor/fundamentals/dependency-injection> and <xref:fundamentals/dependency-injection>.
+For more information, see <xref:blazor/fundamentals/dependency-injection> and <xref:fundamentals/dependency-injection>.
 
 ## Middleware
 
@@ -148,7 +72,7 @@ The request handling pipeline is composed as a series of middleware components. 
 By convention, a middleware component is added to the pipeline by invoking a `Use{Feature}` extension method. The use of methods named `Use{Feature}` to add middleware to an app is illustrated in the following code:
 
 ```csharp
-using BlazorApp1.Components;
+using BlazorApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
