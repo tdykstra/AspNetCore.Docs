@@ -165,7 +165,7 @@ ASP.NET Core supports a logging API that works with a variety of built-in and th
 
 To create logs, resolve an <xref:Microsoft.Extensions.Logging.ILogger%601> service from dependency injection (DI) and call logging methods such as <xref:Microsoft.Extensions.Logging.LoggerExtensions.LogInformation%2A>. The following example shows how to get the logger in a `.razor` file for a page in a Blazor Web app. A logger object and a console provider for it are stored in the DI container automatically when the <xref:Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder%2A> method is called in `Program.cs`.
 
-:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Weather.cshtml" highlight="3,49-51":::
+:::code language="csharp" source="~/fundamentals/index/samples/9.0/BlazorWebAppMovies/Components/Pages/Weather.razor" highlight="3,49-51":::
 
 For more information, see <xref:fundamentals/logging/index>.
 
