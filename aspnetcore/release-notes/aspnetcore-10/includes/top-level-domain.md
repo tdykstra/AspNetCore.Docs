@@ -6,11 +6,19 @@ ASP.NET Core has been updated in .NET 10 Preview 7 to better support the `.local
 
 ASP.NET Core's built-in HTTP server, Kestrel, will now correctly treat any `*.localhost` name set via [supported endpoint configuration mechanisms](xref:fundamentals/servers/kestrel/endpoints?view=aspnetcore-10.0#configure-endpoints) as the local loopback address and thus bind to it rather than all external address (i.e. bind to `127.0.0.1`/`::1` rather than `0.0.0.0`/`::`). This includes the `"applicationUrl"` property in [launch profiles configured in a *launchSettings.json* file](xref:fundamentals/environments?view=aspnetcore-10.0#development-and-launchsettingsjson), and the `ASPNETCORE_URLS` environment variable. When configured to listen on a `.localhost` address, Kestrel will log an information message for both the `.localhost` **and** `localhost` addresses, to make it clear that both names can be used.
 
+<<<<<<< HEAD
+While web browsers will automatically resolve `*.localhost` names to the local loopback address, other applications might treat `*.localhost` names as regular domain names and attempt to resolve them via their corresponding DNS stack. If your DNS configuration does not resolve `*.localhost` names to an address then they will fail to connect. You can continue to use the regular `localhost` name to address your applications when not in a web browser.*
+=======
 While web browsers automatically resolve `*.localhost` names to the local loopback address, other apps might treat `*.localhost` names as regular domain names and attempt to resolve them via their corresponding DNS stack. If your DNS configuration doesn't resolve `*.localhost` names to an address, they fail to connect. You can continue to use the regular `localhost` name to address your apps when not in a web browser.
+>>>>>>> 50a70034e69a600c1fff3deabe97ca787938e3b6
 
 The [ASP.NET Core HTTPS development certificate](xref:security/enforcing-ssl?view=aspnetcore-10.0#trust-the-aspnet-core-https-development-certificate) (including the `dotnet dev-certs https` command) have been updated to ensure the certificate is valid for use with the `*.dev.localhost` domain name. After installing .NET 10 SDK Preview 7, trust the new developer certificate by running `dotnet dev-certs https --trust` at the command line to ensure your system is configured to trust the new certificate.
 
+<<<<<<< HEAD
+The certificate lists the `*.dev.localhost` name as a Subject Alternative Name (SAN) rather than `*.localhost` as it's invalid to have wildcard certificates for top-level domain names*
+=======
 The certificate lists the `*.dev.localhost` name as a Subject Alternative Name (SAN) rather than `*.localhost` because using a wildcard certificate for a top-level domain name is invalid.
+>>>>>>> 50a70034e69a600c1fff3deabe97ca787938e3b6
 
 The project templates for *ASP.NET Core Empty* (`web`) and *Blazor Web App* (`blazor`) have been updated with a new option that when specified configures the created project to use the `.dev.localhost` domain name suffix, combining it with the project name to allow the app to be browsed to at an address like `https://myapp.dev.localhost:5036`:
 
